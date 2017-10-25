@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Tiffani's Portfolio</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.11/semantic.min.css">
+</head>
+<body>
+	<div id="app"></div>
+	<script src="bundle.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Tiffani's Portfolio</title>
+    <link rel="stylesheet" type="text/css" href="../app/stylesheets/ui.scss">
+    <link rel="stylesheet" href="../app/stylesheets/animations.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" href="../public/css/images/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="../public/css/images/favicon.ico" type="image/x-icon">
+	
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.11/semantic.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat|Roboto" rel="stylesheet">
+
+    <!-- Load the Paper.js library -->
+    </script>
+    <script type="text/javascript" src="../dist/paper-full.js"></script>
+    <script type="text/javascript" src="http://paperjs.org/assets/js/rhill-voronoi-core.js"></script>
+    <script type="text/paperscript" canvas="canvas">
+        var voronoi =  new Voronoi();
+        var sites = generateBeeHivePoints(view.size / 200, true);
+        var bbox, diagram;
+        var oldSize = view.size;
+        <!-- var spotColor = new Color('#f5562e'); -->
+        var spotColor = new Color('#777DA7');
+        var mousePos = view.center;
+        var selected = false;
+        onResize();
+        function onMouseDown(event) {
+            sites.push(event.point);
+            renderDiagram();
+        }
+        function onMouseMove(event) {
+            mousePos = event.point;
+            if (event.count == 0)
+                sites.push(event.point);
+            sites[sites.length - 1] = event.point;
+            renderDiagram();
+        }
+        function renderDiagram() {
+            project.activeLayer.children = [];
+            var diagram = voronoi.compute(sites, bbox);
+            if (diagram) {
+                for (var i = 0, l = sites.length; i < l; i++) {
+                    var cell = diagram.cells[sites[i].voronoiId];
+                    if (cell) {
+                        var halfedges = cell.halfedges,
+                            length = halfedges.length;
+                        if (length > 2) {
+                            var points = [];
+                            for (var j = 0; j < length; j++) {
+                                v = halfedges[j].getEndpoint();
+                                points.push(new Point(v));
+                            }
+                            createPath(points, sites[i]);
+                        }
+                    }
+                }
+            }
+        }
+        function removeSmallBits(path) {
+            var averageLength = path.length / path.segments.length;
+            var min = path.length / 50;
+            for(var i = path.segments.length - 1; i >= 0; i--) {
+                var segment = path.segments[i];
+                var cur = segment.point;
+                var nextSegment = segment.next;
+                var next = nextSegment.point + nextSegment.handleIn;
+                if (cur.getDistance(next) < min) {
+                    segment.remove();
+                }
+            }
+        }
+        function generateBeeHivePoints(size, loose) {
+            var points = [];
+            var col = view.size / size;
+            for(var i = -1; i < size.width + 1; i++) {
+                for(var j = -1; j < size.height + 1; j++) {
+                    var point = new Point(i, j) / new Point(size) * view.size + col / 2;
+                    if (j % 2)
+                        point += new Point(col.width / 2, 0);
+                    if (loose)
+                        point += (col / 4) * Point.random() - col / 4;
+                    points.push(point);
+                }
+            }
+            return points;
+        }
+        function createPath(points, center) {
+            var path = new Path();
+            if (!selected) {
+                path.fillColor = spotColor;
+            } else {
+                path.fullySelected = selected;
+            }
+            path.closed = true;
+            for (var i = 0, l = points.length; i < l; i++) {
+                var point = points[i];
+                var next = points[(i + 1) == points.length ? 0 : i + 1];
+                var vector = (next - point) / 2;
+                path.add({
+                    point: point + vector,
+                    handleIn: -vector,
+                    handleOut: vector
+                });
+            }
+            path.scale(0.95);
+            removeSmallBits(path);
+            return path;
+        }
+        function onResize() {
+            var margin = 20;
+            bbox = {
+                xl: margin,
+                xr: view.bounds.width - margin,
+                yt: margin,
+                yb: view.bounds.height - margin
+            };
+            for (var i = 0, l = sites.length; i < l; i++) {
+                sites[i] = sites[i] * view.size / oldSize;
+            }
+            oldSize = view.size;
+            renderDiagram();
+        }
+        function onKeyDown(event) {
+            if (event.key == 'space') {
+                selected = !selected;
+                renderDiagram();
+            }
+        }
+    </script>
+    
+  </head>
+  <body>
+
+  <!-- <canvas id="canvas" resize></canvas> -->
+  <!--paper.js section-->
+  <div class="paperscript">
+    <div class="canvas">
+      <canvas resize="true" id="canvas" width="1260" height="784" data-paper-scope="1" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></canvas>
+      <div class="cartoon">
+      	<!-- <div class="cartoon-title"><p>comingSoon</p></div> -->
+        <div class="cartoon-image hatch"></div>
+        <!-- <img class="cartoon-image" src="../public/css/images/cartoonshot.png"> -->
+      </div>
+    </div>
+  </div>
+	<div id="app"></div>
+	<script src="bundle.js"></script>
+  </body>
