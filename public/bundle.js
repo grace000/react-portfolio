@@ -54,7 +54,7 @@
 
 	var _Navbar = __webpack_require__(159);
 
-	var _Signup = __webpack_require__(855);
+	var _Signup = __webpack_require__(854);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -62804,8 +62804,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 854 */,
-/* 855 */
+/* 854 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';

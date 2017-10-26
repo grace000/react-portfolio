@@ -2,6 +2,7 @@ import React from 'react'
 
 import { Button, Container, Header, Menu, Grid, Form, Image } from 'semantic-ui-react'
 
+
 export const Signup = () => (
 	<Grid centered>
 		<Grid.Column width={6}>
